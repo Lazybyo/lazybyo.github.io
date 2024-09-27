@@ -1,0 +1,141 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Game</title>
+    <link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+    <canvas id="myCanvas" width="700" height="600"></canvas>
+    <script>
+var c = document.getElementById("myCanvas");
+var draw = c.getContext("2d");
+var leftArrow = false
+var rightArrow = false
+var upArrow = false
+var downArrow = false
+var gameLoop
+var pos = [100, 100]
+
+document.addEventListener('keydown', function(event) {
+  if (event.keyCode == 37 || event.keyCode == 65) {
+    leftArrow = true
+  }
+  if (event.keyCode == 39 || event.keyCode == 68) {
+    rightArrow = true
+  }
+  if (event.keyCode == 38 || event.keyCode == 87) {
+    upArrow = true
+  }
+  if (event.keyCode == 40 || event.keyCode == 83) {
+    downArrow = true
+  }
+})
+
+document.addEventListener('keyup', function(event) {
+  if (event.keyCode == 37 || event.keyCode == 65) {
+    leftArrow = false
+  }
+  if (event.keyCode == 39 || event.keyCode == 68) {
+    rightArrow = false
+  }
+  if (event.keyCode == 38 || event.keyCode == 87) {
+    upArrow = false
+  }
+  if (event.keyCode == 40 || event.keyCode == 83) {
+    downArrow = false
+  }
+})
+
+function drawCircle(x, y, r, c, lW) {
+    draw.beginPath();
+    draw.arc(x, y, r, 0, 2 * Math.PI, false);
+    if (lW > 0){
+        draw.lineWidth = lW;
+        draw.stroke();
+    }
+    draw.fillStyle = c
+    draw.fill();
+}
+
+function drawRectangle(x, y, w, h, c, lW) {
+  draw.beginPath();
+  draw.rect(x, y, w, h);
+  if (lW > 0){
+    draw.lineWidth = lW;
+    draw.stroke();
+  }
+  draw.fillStyle = c;
+  draw.fill();
+}
+
+function specialSemi(x, y, r, n1, n2, lW, c, sC) {
+  draw.beginPath();
+  draw.arc(x, y, r, n1 * Math.PI, n2 * Math.PI, false);
+  draw.closePath();
+  if (lW > 0){
+    draw.lineWidth = lW;
+    draw.stroke();
+  }
+  draw.fillStyle = c;
+  draw.fill();
+  draw.strokeStyle = sC;
+}
+
+function player(x, y, c){
+    drawRectangle(x+10, y+22, 7, 13, c, 10)
+    drawRectangle(x-15, y+22, 7, 13, c, 10)
+    drawCircle(x, y, 25, c, 10)
+    drawRectangle(x+10, y+18, 7, 13, c, 0)
+    drawRectangle(x-15, y+18, 7, 13, c, 0)
+    drawCircle(x-20, y-5, 5, "white", 10)
+    drawCircle(x-20, y-5, 2, "black", 0)
+    drawCircle(x+20, y-5, 5, "white", 10)
+    drawCircle(x+20, y-5, 2, "black", 0)
+    //specialSemi(x, y+10, 10, 2, 1, 0, "black", "black")
+    //specialSemi(x, y+10, 5, 2, 1, 0, "blue", "black")
+    //specialSemi(x, y-10, 10, 1, 2, 0, "black", "black")
+    drawRectangle(x-10, y+10, 20, 5, "black", 0)
+}
+
+function background(x, y){
+  drawRectangle(0, 0, 700, 600, "black", 0)
+  drawCircle(350-x, 300-y, 560, "#6b6b6b", 0)
+  drawCircle(350-x, 300-y, 400, "#525252", 0)
+  drawCircle(350-x, 300-y, 200, "#363636", 0)
+}
+
+function dist(a, b){
+  return Math.sqrt(a * a + b * b)
+}
+
+function game(){
+    background(pos[0], pos[1])
+    player(350,300, "blue")
+    if (leftArrow == true && dist(pos[0], pos[1]) < 530 && pos[0] < 0 || leftArrow == true && pos[0] > 0){
+        pos[0] -= 3
+    }
+    if (rightArrow == true && dist(pos[0], pos[1]) < 530 && pos[0] > 0 || rightArrow == true && pos[0] < 0){
+        pos[0] += 3
+    }
+    if (upArrow == true && dist(pos[0], pos[1]) < 530 && pos[1] < 0 || upArrow == true && pos[1] > 0){
+        pos[1] -= 3
+    }
+    if (downArrow == true && dist(pos[0], pos[1]) < 530 && pos[1] > 0 || downArrow == true && pos[1] < 0){
+        pos[1] += 3
+    }
+}
+
+function startTimer() {
+  clearInterval(gameLoop)
+  gameLoop = window.setInterval(game, 10)
+}
+
+startTimer()
+
+    </script>
+</body>
+
+</html>
