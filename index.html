@@ -17,7 +17,10 @@ var upArrow = false
 var downArrow = false
 var gameLoop
 var pos = [100, 100]
-var bullets = [[0,0,1,2]]
+var bullets = []
+var dooftime = 0
+var doofset = 1
+var hp = 3
 
 document.addEventListener('keydown', function(event) {
   if (event.keyCode == 37 || event.keyCode == 65) {
@@ -56,8 +59,10 @@ function drawCircle(x, y, r, c, lW) {
         draw.lineWidth = lW;
         draw.stroke();
     }
-    draw.fillStyle = c
-    draw.fill();
+    if (c != 0){
+      draw.fillStyle = c
+      draw.fill();
+    }
 }
 
 function drawRectangle(x, y, w, h, c, lW) {
@@ -67,11 +72,37 @@ function drawRectangle(x, y, w, h, c, lW) {
     draw.lineWidth = lW;
     draw.stroke();
   }
-  draw.fillStyle = c;
-  draw.fill();
+  if (c != 0){
+      draw.fillStyle = c
+      draw.fill();
+    }
 }
 
-function specialSemi(x, y, r, n1, n2, lW, c, sC) {
+function drawLine(x, y, x2, y2, lW){
+  draw.lineWidth = lW
+  draw.beginPath();
+  draw.moveTo(x, y);
+  draw.lineTo(x2, y2);
+  draw.stroke();
+}
+
+function drawTriangle(x1, y1, x2, y2, x3, y3, lW, c){
+  draw.beginPath();
+  draw.moveTo(x1, y1);
+  draw.lineTo(x2, y2);
+  draw.lineTo(x3, y3);
+  draw.lineTo(x1, y1);
+  if (lW > 0){
+    draw.lineWidth = lW;
+    draw.stroke();
+  }
+  if (c != 0){
+      draw.fillStyle = c
+      draw.fill();
+    }
+}
+
+function specialSemi(x, y, r, n1, n2, lW, c) {
   draw.beginPath();
   draw.arc(x, y, r, n1 * Math.PI, n2 * Math.PI, false);
   draw.closePath();
@@ -79,9 +110,10 @@ function specialSemi(x, y, r, n1, n2, lW, c, sC) {
     draw.lineWidth = lW;
     draw.stroke();
   }
-  draw.fillStyle = c;
-  draw.fill();
-  draw.strokeStyle = sC;
+  if (c != 0){
+      draw.fillStyle = c
+      draw.fill();
+    }
 }
 
 function player(x, y, c){
@@ -94,14 +126,14 @@ function player(x, y, c){
     drawCircle(x-20, y-5, 2, "black", 0)
     drawCircle(x+20, y-5, 5, "white", 10)
     drawCircle(x+20, y-5, 2, "black", 0)
-    //specialSemi(x, y+10, 10, 2, 1, 0, "black", "black")
-    //specialSemi(x, y+10, 5, 2, 1, 0, "blue", "black")
-    //specialSemi(x, y-10, 10, 1, 2, 0, "black", "black")
+    //specialSemi(x, y+10, 10, 2, 1, 0, "black")
+    //specialSemi(x, y+10, 5, 2, 1, 0, "blue")
+    //specialSemi(x, y-10, 10, 1, 2, 0, "black")
     drawRectangle(x-10, y+10, 20, 5, "black", 0)
 }
 
 function background(x, y){
-  drawRectangle(0, 0, 700, 600, "black", 0)
+  drawRectangle(0, 0, 700, 600, "#2e3140", 0)
   drawCircle(350-x, 300-y, 560, "#6b6b6b", 0)
   drawCircle(350-x, 300-y, 400, "#525252", 0)
   drawCircle(350-x, 300-y, 200, "#363636", 0)
@@ -112,13 +144,39 @@ function dist(a, b){
 }
 
 function bullet(x, y){
-    drawCircle(x, y, 15, "#616161", 5)
-    
+    drawCircle(x, y, 5, "#616161", 10)
+}
+
+function drawDoof(x, y){
+  drawCircle(x, y, 100, "red", 20)
+  drawCircle(x-100, y-20, 30, "white", 20)
+  drawCircle(x-110, y-30, 10, "black", 0)
+  drawCircle(x+100, y-20, 30, "white", 20)
+  drawCircle(x+110, y-20, 10, "black", 0)
+  specialSemi(x, y, 50, 0.8, 1.8, 0, "black", 0)
+  drawRectangle(x, y-29, 40, 30, "black", 0)
+  drawRectangle(x-50, y, 90, 30, "black", 0)
+}
+
+function health(){
+  var p = 30
+  for (let i = 0; i < hp; i++){
+    drawCircle(p, 30, 20, "red", 10)
+    p += 60
+  }
+  p+90
+  for (let i = 0; i < 3-hp; i++){
+    drawCircle(p+60*i, 30, 21, 0, 5)
+  }
 }
         
 function game(){
+    dooftime += 1
+
     background(pos[0], pos[1])
-    player(350,300, "blue")
+    drawDoof(350-pos[0], 300-pos[1])
+    player(350,300, "#17afd1")
+    
     if (leftArrow == true && dist(pos[0], pos[1]) < 530 && pos[0] < 0 || leftArrow == true && pos[0] > 0){
         pos[0] -= 3
     }
@@ -131,11 +189,49 @@ function game(){
     if (downArrow == true && dist(pos[0], pos[1]) < 530 && pos[1] > 0 || downArrow == true && pos[1] < 0){
         pos[1] += 3
     }
-    for( i in range(length(bullets))){
-        bullet(bullets[i][0], bullets[i][1])
-        bullets[i][0] += bullets[i][2]
-        bullets[i][1] += bullets[i][3]
+
+    if (dooftime >= 100 && doofset == 1){
+      dooftime = 0
+      doofset = 2
+      bullets.push([350, 300, 1, 0])
+      bullets.push([350, 300, 0, 1])
+      bullets.push([350, 300, -1, 0])
+      bullets.push([350, 300, 0, -1])
+      bullets.push([350, 300, 0.75, 0.75])
+      bullets.push([350, 300, 0.75, -0.75])
+      bullets.push([350, 300, -0.75, 0.75])
+      bullets.push([350, 300, -0.75, -0.75])
     }
+    if (dooftime >= 100 && doofset == 2){
+      dooftime = 0
+      doofset = 1
+      bullets.push([350, 300, -0.75, -0.35])
+      bullets.push([350, 300, 0.35, -0.75])
+      bullets.push([350, 300, 0.75, -0.35])
+      bullets.push([350, 300, -0.35, 0.75])
+      bullets.push([350, 300, 0.75, 0.35])
+      bullets.push([350, 300, 0.35, 0.75])
+      bullets.push([350, 300, -0.75, 0.35])
+      bullets.push([350, 300, -0.35, -0.75])
+    }
+
+    for( let i = 0; i < bullets.length; i++){
+      bullet(bullets[i][0]-pos[0], bullets[i][1]-pos[1])
+      bullets[i][0] += bullets[i][2]
+      bullets[i][1] += bullets[i][3]
+      if (dist(bullets[i][0]-350-pos[0], bullets[i][1]-300-pos[1]) < 35){
+        bullets.splice(i,1)
+        hp -= 1
+      }
+      else if (dist(bullets[i][0]-350, bullets[i][1]-300) > 550){
+        bullets.splice(i,1)
+      }
+    }
+    if (hp <= 0){
+      alert("YOU DIED!")
+      clearInterval(gameLoop)
+    }
+    health()
 }
 
 function startTimer() {
