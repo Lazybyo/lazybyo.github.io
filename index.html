@@ -17,6 +17,7 @@ var upArrow = false
 var downArrow = false
 var gameLoop
 var pos = [100, 100]
+var bullets = [[0,0,1,2]]
 
 document.addEventListener('keydown', function(event) {
   if (event.keyCode == 37 || event.keyCode == 65) {
@@ -110,6 +111,10 @@ function dist(a, b){
   return Math.sqrt(a * a + b * b)
 }
 
+function bullet(x, y){
+    drawCircle(x, y)
+}
+        
 function game(){
     background(pos[0], pos[1])
     player(350,300, "blue")
@@ -125,6 +130,7 @@ function game(){
     if (downArrow == true && dist(pos[0], pos[1]) < 530 && pos[1] > 0 || downArrow == true && pos[1] < 0){
         pos[1] += 3
     }
+    
 }
 
 function startTimer() {
