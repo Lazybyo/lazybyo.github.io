@@ -19,8 +19,30 @@ var gameLoop
 var pos = [100, 100]
 var bullets = []
 var dooftime = 0
+var doofcooldown = 100
 var doofset = 1
 var hp = 3
+var dodgeSpeed = 10
+var dodgeDirection = [0, 0]
+var dodgeTime = 0
+var isDodging = false
+var canDodge = true
+var space = false
+var inmainMenu = true
+
+function getMousePosition(canvas, event) {
+    let rect = canvas.getBoundingClientRect();
+    let x = event.clientX - rect.left;
+    let y = event.clientY - rect.top;
+    if (x >= 250 && x <= 450 && y >= 100 && y <= 200 && inmainMenu){
+      inmainMenu = false
+      startTimer()
+    }
+}
+
+c.addEventListener("mousedown", function (e) {
+    getMousePosition(c, e);
+}); 
 
 document.addEventListener('keydown', function(event) {
   if (event.keyCode == 37 || event.keyCode == 65) {
@@ -34,6 +56,9 @@ document.addEventListener('keydown', function(event) {
   }
   if (event.keyCode == 40 || event.keyCode == 83) {
     downArrow = true
+  }
+  if (event.keyCode == 32) {
+    space = true
   }
 })
 
@@ -49,6 +74,9 @@ document.addEventListener('keyup', function(event) {
   }
   if (event.keyCode == 40 || event.keyCode == 83) {
     downArrow = false
+  }
+  if (event.keyCode == 32) {
+    space = false
   }
 })
 
@@ -159,17 +187,43 @@ function drawDoof(x, y){
 }
 
 function health(){
-  var p = 30
-  for (let i = 0; i < hp; i++){
-    drawCircle(p, 30, 20, "red", 10)
-    p += 60
-  }
-  p+90
-  for (let i = 0; i < 3-hp; i++){
-    drawCircle(p+60*i, 30, 21, 0, 5)
+  if (inmainMenu == false){
+    var p = 30
+    for (let i = 0; i < hp; i++){
+      drawCircle(p, 30, 20, "red", 10)
+      p += 60
+    }
+    p+90
+    for (let i = 0; i < 3-hp; i++){
+      drawCircle(p+60*i, 30, 21, 0, 5)
+    }
   }
 }
-        
+
+function dodge(){
+  isDodging = true
+  canDodge = false
+  space = false
+  dodgeDirection = [0, 0]
+  dodgeTime = 0
+  if (leftArrow == true){
+    dodgeDirection[0] -= 1
+  }
+  if (rightArrow == true){
+    dodgeDirection[0] += 1
+  }
+  if (upArrow == true){
+    dodgeDirection[1] -= 1
+  }
+  if (downArrow == true){
+    dodgeDirection[1] += 1
+  }
+  if (dodgeDirection == [1,1] ||dodgeDirection == [-1,-1] || dodgeDirection == [-1,1] || dodgeDirection == [1,-1]){
+    dodgeDirection[0] *= 0.75
+    dodgeDirection[1] *= 0.75
+  } 
+}
+
 function game(){
     dooftime += 1
 
@@ -177,22 +231,24 @@ function game(){
     drawDoof(350-pos[0], 300-pos[1])
     player(350,300, "#17afd1")
     
-    if (leftArrow == true && dist(pos[0], pos[1]) < 530 && pos[0] < 0 || leftArrow == true && pos[0] > 0){
+    if (leftArrow == true && dist(pos[0], pos[1]) < 530 && pos[0] < 0 || leftArrow == true && pos[0] >= 0){
         pos[0] -= 3
+        
     }
-    if (rightArrow == true && dist(pos[0], pos[1]) < 530 && pos[0] > 0 || rightArrow == true && pos[0] < 0){
+    if (rightArrow == true && dist(pos[0], pos[1]) < 530 && pos[0] > 0 || rightArrow == true && pos[0] <= 0){
         pos[0] += 3
     }
-    if (upArrow == true && dist(pos[0], pos[1]) < 530 && pos[1] < 0 || upArrow == true && pos[1] > 0){
+    if (upArrow == true && dist(pos[0], pos[1]) < 530 && pos[1] < 0 || upArrow == true && pos[1] >= 0){
         pos[1] -= 3
     }
-    if (downArrow == true && dist(pos[0], pos[1]) < 530 && pos[1] > 0 || downArrow == true && pos[1] < 0){
+    if (downArrow == true && dist(pos[0], pos[1]) < 530 && pos[1] > 0 || downArrow == true && pos[1] <= 0){
         pos[1] += 3
     }
 
-    if (dooftime >= 100 && doofset == 1){
+    if (dooftime >= doofcooldown && doofset == 1){
       dooftime = 0
       doofset = 2
+      doofcooldown -= 0.5
       bullets.push([350, 300, 1, 0])
       bullets.push([350, 300, 0, 1])
       bullets.push([350, 300, -1, 0])
@@ -202,9 +258,10 @@ function game(){
       bullets.push([350, 300, -0.75, 0.75])
       bullets.push([350, 300, -0.75, -0.75])
     }
-    if (dooftime >= 100 && doofset == 2){
+    if (dooftime >= doofcooldown && doofset == 2){
       dooftime = 0
-      doofset = 1
+      doofset = 3
+      doofcooldown -= 0.5
       bullets.push([350, 300, -0.75, -0.35])
       bullets.push([350, 300, 0.35, -0.75])
       bullets.push([350, 300, 0.75, -0.35])
@@ -214,12 +271,21 @@ function game(){
       bullets.push([350, 300, -0.75, 0.35])
       bullets.push([350, 300, -0.35, -0.75])
     }
+    if (dooftime >= doofcooldown && doofset == 3 || dooftime >= 10 && doofset > 3 ){
+      dooftime = 0
+      doofset += 0.1
+      doofcooldown -= 0.5
+      if (Math.round(doofset) == 4){
+        doofset = 1
+      }
+      bullets.push([350, 300, (pos[0])/dist(pos[0], pos[1])*2, (pos[1])/dist(pos[0], pos[1])*2])
+    }
 
     for( let i = 0; i < bullets.length; i++){
       bullet(bullets[i][0]-pos[0], bullets[i][1]-pos[1])
       bullets[i][0] += bullets[i][2]
       bullets[i][1] += bullets[i][3]
-      if (dist(bullets[i][0]-350-pos[0], bullets[i][1]-300-pos[1]) < 35){
+      if (dist(bullets[i][0]-350-pos[0], bullets[i][1]-300-pos[1]) < 35 && isDodging == false){
         bullets.splice(i,1)
         hp -= 1
       }
@@ -229,7 +295,33 @@ function game(){
     }
     if (hp <= 0){
       alert("YOU DIED!")
+      inmainMenu = true
       clearInterval(gameLoop)
+      mainMenu()
+    }
+    if (canDodge == true && space == true){
+      dodge()
+    }
+    if (isDodging == true){
+      if (dodgeDirection[0] == -1 && dist(pos[0], pos[1]) < 530 && pos[0] < 0 || dodgeDirection[0] == -1 && pos[0] > 0){
+        pos[0] -= dodgeSpeed
+      }
+      if (dodgeDirection[0] == 1 && dist(pos[0], pos[1]) < 530 && pos[0] > 0 || dodgeDirection[0] == 1 && pos[0] < 0){
+          pos[0] += dodgeSpeed
+      }
+      if (dodgeDirection[1] == -1 && dist(pos[0], pos[1]) < 530 && pos[1] < 0 || dodgeDirection[1] == -1 && pos[1] > 0){
+          pos[1] -= dodgeSpeed
+      }
+      if (dodgeDirection[1] == 1 && dist(pos[0], pos[1]) < 530 && pos[1] > 0 || dodgeDirection[1] == 1 && pos[1] < 0){
+          pos[1] += dodgeSpeed
+      }
+    }
+    dodgeTime += 1
+    if (dodgeTime > 15){
+      isDodging = false
+    }
+    if (dodgeTime > 80){
+      canDodge = true
     }
     health()
 }
@@ -239,8 +331,22 @@ function startTimer() {
   gameLoop = window.setInterval(game, 10)
 }
 
-startTimer()
+function mainMenu(){
+  hp = 3
+  bullets = []
+  doofcooldown = 100
+  drawRectangle(0, 0, 700, 600, "grey", 0)
+  drawRectangle(250, 100, 200, 100, "#17afd1", 10)
+  draw.fillStyle = "black"
+  draw.font = "50px Arial";
+  draw.fillText("Start",290,170);
+  drawRectangle(250, 300, 200, 100, "#17afd1", 10)
+  draw.fillStyle = "black"
+  draw.font = "50px Arial";
+  draw.fillText("Quit",290,370);
+}
 
+mainMenu()
     </script>
 </body>
 
