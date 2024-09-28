@@ -7,7 +7,9 @@
 </head>
 
 <body>
+  <center>
     <canvas id="myCanvas" width="700" height="600"></canvas>
+  </center>
     <script>
 var c = document.getElementById("myCanvas");
 var draw = c.getContext("2d");
@@ -29,6 +31,8 @@ var isDodging = false
 var canDodge = true
 var space = false
 var inmainMenu = true
+var aniState = 1
+var aniTime = 0
 
 function getMousePosition(canvas, event) {
     let rect = canvas.getBoundingClientRect();
@@ -144,7 +148,8 @@ function specialSemi(x, y, r, n1, n2, lW, c) {
     }
 }
 
-function player(x, y, c){
+function player(x, y, c, state){
+  if (state ==  "Idle"){
     drawRectangle(x+10, y+22, 7, 13, c, 10)
     drawRectangle(x-15, y+22, 7, 13, c, 10)
     drawCircle(x, y, 25, c, 10)
@@ -154,10 +159,78 @@ function player(x, y, c){
     drawCircle(x-20, y-5, 2, "black", 0)
     drawCircle(x+20, y-5, 5, "white", 10)
     drawCircle(x+20, y-5, 2, "black", 0)
-    //specialSemi(x, y+10, 10, 2, 1, 0, "black")
-    //specialSemi(x, y+10, 5, 2, 1, 0, "blue")
-    //specialSemi(x, y-10, 10, 1, 2, 0, "black")
     drawRectangle(x-10, y+10, 20, 5, "black", 0)
+  }
+  if (state ==  "down1"){
+    drawRectangle(x+10, y+22, 7, 13, c, 10)
+    drawRectangle(x-15, y+22, 7, 8, c, 10)
+    drawCircle(x, y, 25, c, 10)
+    drawRectangle(x+10, y+18, 7, 13, c, 0)
+    drawRectangle(x-15, y+18, 7, 11, c, 0)
+    drawCircle(x-20, y-5, 5, "white", 10)
+    drawCircle(x-20, y-5, 2, "black", 0)
+    drawCircle(x+20, y-5, 5, "white", 10)
+    drawCircle(x+20, y-5, 2, "black", 0)
+    drawRectangle(x-10, y+10, 20, 5, "black", 0)
+  }
+  if (state ==  "down2"){
+    drawRectangle(x+10, y+22, 7, 8, c, 10)
+    drawRectangle(x-15, y+22, 7, 13, c, 10)
+    drawCircle(x, y, 25, c, 10)
+    drawRectangle(x+10, y+18, 7, 11, c, 0)
+    drawRectangle(x-15, y+18, 7, 13, c, 0)
+    drawCircle(x-20, y-5, 5, "white", 10)
+    drawCircle(x-20, y-5, 2, "black", 0)
+    drawCircle(x+20, y-5, 5, "white", 10)
+    drawCircle(x+20, y-5, 2, "black", 0)
+    drawRectangle(x-10, y+10, 20, 5, "black", 0)
+  }
+  if (state ==  "up1"){
+    drawRectangle(x+10, y+22, 7, 13, c, 10)
+    drawRectangle(x-15, y+22, 7, 8, c, 10)
+    drawCircle(x, y, 25, c, 10)
+    drawRectangle(x+10, y+18, 7, 13, c, 0)
+    drawRectangle(x-15, y+18, 7, 11, c, 0)
+  }
+  if (state ==  "up2"){
+    drawRectangle(x+10, y+22, 7, 8, c, 10)
+    drawRectangle(x-15, y+22, 7, 13, c, 10)
+    drawCircle(x, y, 25, c, 10)
+    drawRectangle(x+10, y+18, 7, 11, c, 0)
+    drawRectangle(x-15, y+18, 7, 13, c, 0)
+  }
+  if (state ==  "right1"){
+    drawRectangle(x-5, y+22, 7, 13, c, 10)
+    drawCircle(x, y, 25, c, 10)
+    drawRectangle(x-5, y+18, 7, 13, c, 0)
+    drawCircle(x+10, y-5, 5, "white", 10)
+    drawCircle(x+10, y-5, 2, "black", 0)
+    drawRectangle(x+10, y+10, 13, 5, "black", 0)
+  }
+  if (state ==  "right2"){
+    drawRectangle(x-5, y+22, 7, 8, c, 10)
+    drawCircle(x, y, 25, c, 10)
+    drawRectangle(x-5, y+18, 7, 11, c, 0)
+    drawCircle(x+10, y-5, 5, "white", 10)
+    drawCircle(x+10, y-5, 2, "black", 0)
+    drawRectangle(x+10, y+10, 13, 5, "black", 0)
+  }
+  if (state ==  "left1"){
+    drawRectangle(x-5, y+22, 7, 13, c, 10)
+    drawCircle(x, y, 25, c, 10)
+    drawRectangle(x-5, y+18, 7, 13, c, 0)
+    drawCircle(x-10, y-5, 5, "white", 10)
+    drawCircle(x-10, y-5, 2, "black", 0)
+    drawRectangle(x-23, y+10, 13, 5, "black", 0)
+  }
+  if (state ==  "left2"){
+    drawRectangle(x-5, y+22, 7, 8, c, 10)
+    drawCircle(x, y, 25, c, 10)
+    drawRectangle(x-5, y+18, 7, 11, c, 0)
+    drawCircle(x-10, y-5, 5, "white", 10)
+    drawCircle(x-10, y-5, 2, "black", 0)
+    drawRectangle(x-23, y+10, 13, 5, "black", 0)
+  }
 }
 
 function background(x, y){
@@ -229,7 +302,37 @@ function game(){
 
     background(pos[0], pos[1])
     drawDoof(350-pos[0], 300-pos[1])
-    player(350,300, "#17afd1")
+
+    if (upArrow){
+      if (aniState == 1){
+        player(350,300, "#17afd1", "up1")
+      } if (aniState == 2){
+        player(350,300, "#17afd1", "up2")
+      }
+    } else if (downArrow){
+      if (aniState == 1){
+        player(350,300, "#17afd1", "down1")
+      } 
+      if (aniState == 2){
+        player(350,300, "#17afd1", "down2")
+      }
+    } else if (rightArrow){
+      if (aniState == 1){
+        player(350,300, "#17afd1", "right1")
+      } 
+      if (aniState == 2){
+        player(350,300, "#17afd1", "right2")
+      }
+    } else if (leftArrow){
+      if (aniState == 1){
+        player(350,300, "#17afd1", "left1")
+      } 
+      if (aniState == 2){
+        player(350,300, "#17afd1", "left2")
+      }
+    } else{
+      player(350,300, "#17afd1", "Idle")
+    }
     
     if (leftArrow == true && dist(pos[0], pos[1]) < 530 && pos[0] < 0 || leftArrow == true && pos[0] >= 0){
         pos[0] -= 3
@@ -323,6 +426,17 @@ function game(){
     if (dodgeTime > 80){
       canDodge = true
     }
+    if (leftArrow || rightArrow || upArrow || downArrow){
+      aniTime += 1
+    }
+    if (aniTime >= 10){
+      if (aniState == 1){
+        aniState = 2
+      } else if (aniState == 2){
+        aniState = 1
+      }
+      aniTime = 0
+    }
     health()
 }
 
@@ -332,9 +446,22 @@ function startTimer() {
 }
 
 function mainMenu(){
-  hp = 3
+  leftArrow = false
+  rightArrow = false
+  upArrow = false
+  downArrow = false
+  pos = [100, 100]
   bullets = []
+  dooftime = 0
   doofcooldown = 100
+  doofset = 1
+  hp = 3
+  dodgeDirection = [0, 0]
+  dodgeTime = 0
+  isDodging = false
+  canDodge = true
+  space = false
+
   drawRectangle(0, 0, 700, 600, "grey", 0)
   drawRectangle(250, 100, 200, 100, "#17afd1", 10)
   draw.fillStyle = "black"
@@ -344,6 +471,10 @@ function mainMenu(){
   draw.fillStyle = "black"
   draw.font = "50px Arial";
   draw.fillText("Quit",290,370);
+  draw.fillStyle = "black"
+  draw.font = "40px Arial";
+  draw.fillText("WASD / Arrow Keys to move",100,470);
+  draw.fillText("Space Bar to Dash",180,570);
 }
 
 mainMenu()
