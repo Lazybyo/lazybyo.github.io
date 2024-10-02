@@ -11,6 +11,9 @@
     <canvas id="myCanvas" width="700" height="600"></canvas>
   </center>
     <script>
+if (localStorage.getItem("score") == null){
+  localStorage.setItem("score", 0);
+}
 var c = document.getElementById("myCanvas");
 var draw = c.getContext("2d");
 var leftArrow = false
@@ -35,41 +38,6 @@ var aniState = 1
 var aniTime = 0
 var score = 0 
 var highScore = 0
-
-function setCookie(cname,cvalue,exdays) {
-  const d = new Date();
-  d.setTime(d.getTime() + (exdays*24*60*60*1000));
-  let expires = "expires=" + d.toUTCString();
-  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-}
-
-function getCookie(cname) {
-  let name = cname + "=";
-  let decodedCookie = decodeURIComponent(document.cookie);
-  let ca = decodedCookie.split(';');
-  for(let i = 0; i < ca.length; i++) {
-    let c = ca[i];
-    while (c.charAt(0) == ' ') {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) == 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
-  return "";
-}
-
-function checkCookie() {
-  let user = getCookie("username");
-  if (user != "") {
-    alert("Welcome again " + user);
-  } else {
-     user = prompt("Please enter your name:","");
-     if (user != "" && user != null) {
-       setCookie("username", user, 30);
-     }
-  }
-}
 
 function getMousePosition(canvas, event) {
     let rect = canvas.getBoundingClientRect();
@@ -436,9 +404,8 @@ function game(){
     if (hp <= 0){
       alert("Score: " + score+ "  HighScore: " + highScore)
       if (score > highScore){
-        highScore = score
+        localStorage.setItem("score", score)
       }
-        setCookie("score", highScore, 100000000)
       inmainMenu = true
       clearInterval(gameLoop)
       mainMenu()
@@ -517,11 +484,7 @@ function mainMenu(){
   draw.font = "40px Arial";
   draw.fillText("WASD / Arrow Keys to move",100,470);
   draw.fillText("Space Bar to Dash",180,570);
-  if (getCookie("score") == ""){
-    setCookie("score", "0", 10000000)
-  }else{
-    highScore = parseInt(getCookie("score"))
-  }
+  highScore = localStorage.getItem("score")
 }
 
 mainMenu()
