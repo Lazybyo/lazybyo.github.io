@@ -436,7 +436,7 @@ function game(){
     if (hp <= 0){
       alert("Score: " + score+ "  HighScore: " + highScore)
       if (score > highScore){
-        setCookie("score", score, 3)
+        setCookie("score", score, 100000000)
       }
       inmainMenu = true
       clearInterval(gameLoop)
@@ -486,6 +486,7 @@ function startTimer() {
 }
 
 function mainMenu(){
+  score = 0
   leftArrow = false
   rightArrow = false
   upArrow = false
@@ -516,7 +517,7 @@ function mainMenu(){
   draw.fillText("WASD / Arrow Keys to move",100,470);
   draw.fillText("Space Bar to Dash",180,570);
   if (getCookie("score") == ""){
-    setCookie("score", "0", 3)
+    setCookie("score", "0", 10000000)
   }else{
     highScore = parseInt(getCookie("score"))
   }
