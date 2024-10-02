@@ -436,8 +436,9 @@ function game(){
     if (hp <= 0){
       alert("Score: " + score+ "  HighScore: " + highScore)
       if (score > highScore){
-        setCookie("score", score, 100000000)
+        highScore = score
       }
+        setCookie("score", highScore, 100000000)
       inmainMenu = true
       clearInterval(gameLoop)
       mainMenu()
